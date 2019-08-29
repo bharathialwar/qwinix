@@ -1,0 +1,297 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachineScaleSets_website4qwnx_name": {
+            "defaultValue": "website4qwnx",
+            "type": "String"
+        },
+        "images_vm_gnix_image_20190828190253_externalid": {
+            "defaultValue": "/subscriptions/5637fd65-b595-4bda-b33b-66a2189d2edb/resourceGroups/TestABR/providers/Microsoft.Compute/images/vm-gnix-image-20190828190253",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_qwinix_externalid": {
+            "defaultValue": "/subscriptions/5637fd65-b595-4bda-b33b-66a2189d2edb/resourceGroups/Qwinix/providers/Microsoft.Network/virtualNetworks/vnet-qwinix",
+            "type": "String"
+        },
+        "loadBalancers_website4qwnxlb_externalid": {
+            "defaultValue": "/subscriptions/5637fd65-b595-4bda-b33b-66a2189d2edb/resourceGroups/Qwinix/providers/Microsoft.Network/loadBalancers/website4qwnxlb",
+            "type": "String"
+        },
+        "disks_website4qwnx_website4qwnx_0_disk1_89cf44d26c3e4a6d83156c779a4e2303_externalid": {
+            "defaultValue": "/subscriptions/5637fd65-b595-4bda-b33b-66a2189d2edb/resourceGroups/Qwinix/providers/Microsoft.Compute/disks/website4qwnx_website4qwnx_0_disk1_89cf44d26c3e4a6d83156c779a4e2303",
+            "type": "String"
+        },
+        "disks_website4qwnx_website4qwnx_1_disk1_36e89439513a4f7d8b43739db94c76a3_externalid": {
+            "defaultValue": "/subscriptions/5637fd65-b595-4bda-b33b-66a2189d2edb/resourceGroups/Qwinix/providers/Microsoft.Compute/disks/website4qwnx_website4qwnx_1_disk1_36e89439513a4f7d8b43739db94c76a3",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachineScaleSets",
+            "apiVersion": "2019-03-01",
+            "name": "[parameters('virtualMachineScaleSets_website4qwnx_name')]",
+            "location": "centralus",
+            "sku": {
+                "name": "Standard_DS1_v2",
+                "tier": "Standard",
+                "capacity": 2
+            },
+            "zones": [
+                "1",
+                "2"
+            ],
+            "properties": {
+                "singlePlacementGroup": false,
+                "upgradePolicy": {
+                    "mode": "Manual"
+                },
+                "virtualMachineProfile": {
+                    "osProfile": {
+                        "computerNamePrefix": "website4q",
+                        "adminUsername": "azureuser",
+                        "linuxConfiguration": {
+                            "disablePasswordAuthentication": false,
+                            "provisionVMAgent": true
+                        },
+                        "secrets": []
+                    },
+                    "storageProfile": {
+                        "osDisk": {
+                            "createOption": "FromImage",
+                            "caching": "ReadWrite",
+                            "managedDisk": {
+                                "storageAccountType": "Standard_LRS"
+                            },
+                            "diskSizeGB": 30
+                        },
+                        "imageReference": {
+                            "id": "[parameters('images_vm_gnix_image_20190828190253_externalid')]"
+                        }
+                    },
+                    "networkProfile": {
+                        "networkInterfaceConfigurations": [
+                            {
+                                "name": "[concat(parameters('virtualMachineScaleSets_website4qwnx_name'), 'Nic')]",
+                                "properties": {
+                                    "primary": true,
+                                    "enableAcceleratedNetworking": false,
+                                    "dnsSettings": {
+                                        "dnsServers": []
+                                    },
+                                    "enableIPForwarding": false,
+                                    "ipConfigurations": [
+                                        {
+                                            "name": "[concat(parameters('virtualMachineScaleSets_website4qwnx_name'), 'IpConfig')]",
+                                            "properties": {
+                                                "subnet": {
+                                                    "id": "[concat(parameters('virtualNetworks_vnet_qwinix_externalid'), '/subnets/subnet-web')]"
+                                                },
+                                                "privateIPAddressVersion": "IPv4",
+                                                "loadBalancerBackendAddressPools": [
+                                                    {
+                                                        "id": "[concat(parameters('loadBalancers_website4qwnxlb_externalid'), '/backendAddressPools/bepool')]"
+                                                    }
+                                                ],
+                                                "loadBalancerInboundNatPools": [
+                                                    {
+                                                        "id": "[concat(parameters('loadBalancers_website4qwnxlb_externalid'), '/inboundNatPools/natpool')]"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "priority": "Regular"
+                },
+                "overprovision": true,
+                "doNotRunExtensionsOnOverprovisionedVMs": false,
+                "zoneBalance": false,
+                "platformFaultDomainCount": 1
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachineScaleSets/virtualMachines",
+            "apiVersion": "2019-03-01",
+            "name": "[concat(parameters('virtualMachineScaleSets_website4qwnx_name'), '/0')]",
+            "location": "centralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('virtualMachineScaleSets_website4qwnx_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_DS1_v2",
+                "tier": "Standard"
+            },
+            "zones": [
+                "1"
+            ],
+            "properties": {
+                "networkProfileConfiguration": {
+                    "networkInterfaceConfigurations": [
+                        {
+                            "name": "website4qwnxNic",
+                            "properties": {
+                                "primary": true,
+                                "enableAcceleratedNetworking": false,
+                                "dnsSettings": {
+                                    "dnsServers": []
+                                },
+                                "enableIPForwarding": false,
+                                "ipConfigurations": [
+                                    {
+                                        "name": "website4qwnxIpConfig",
+                                        "properties": {
+                                            "subnet": {
+                                                "id": "[concat(parameters('virtualNetworks_vnet_qwinix_externalid'), '/subnets/subnet-web')]"
+                                            },
+                                            "privateIPAddressVersion": "IPv4",
+                                            "loadBalancerBackendAddressPools": [
+                                                {
+                                                    "id": "[concat(parameters('loadBalancers_website4qwnxlb_externalid'), '/backendAddressPools/bepool')]"
+                                                }
+                                            ],
+                                            "loadBalancerInboundNatPools": [
+                                                {
+                                                    "id": "[concat(parameters('loadBalancers_website4qwnxlb_externalid'), '/inboundNatPools/natpool')]"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "hardwareProfile": {},
+                "storageProfile": {
+                    "imageReference": {
+                        "id": "[parameters('images_vm_gnix_image_20190828190253_externalid')]"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "name": "website4qwnx_website4qwnx_0_disk1_89cf44d26c3e4a6d83156c779a4e2303",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS",
+                            "id": "[parameters('disks_website4qwnx_website4qwnx_0_disk1_89cf44d26c3e4a6d83156c779a4e2303_externalid')]"
+                        },
+                        "diskSizeGB": 30
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "website4q000000",
+                    "adminUsername": "azureuser",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false,
+                        "provisionVMAgent": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[concat(resourceId('Microsoft.Compute/virtualMachineScaleSets/virtualMachines', parameters('virtualMachineScaleSets_website4qwnx_name'), '0'), '/networkInterfaces/website4qwnxNic')]"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachineScaleSets/virtualMachines",
+            "apiVersion": "2019-03-01",
+            "name": "[concat(parameters('virtualMachineScaleSets_website4qwnx_name'), '/1')]",
+            "location": "centralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('virtualMachineScaleSets_website4qwnx_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_DS1_v2",
+                "tier": "Standard"
+            },
+            "zones": [
+                "2"
+            ],
+            "properties": {
+                "networkProfileConfiguration": {
+                    "networkInterfaceConfigurations": [
+                        {
+                            "name": "website4qwnxNic",
+                            "properties": {
+                                "primary": true,
+                                "enableAcceleratedNetworking": false,
+                                "dnsSettings": {
+                                    "dnsServers": []
+                                },
+                                "enableIPForwarding": false,
+                                "ipConfigurations": [
+                                    {
+                                        "name": "website4qwnxIpConfig",
+                                        "properties": {
+                                            "subnet": {
+                                                "id": "[concat(parameters('virtualNetworks_vnet_qwinix_externalid'), '/subnets/subnet-web')]"
+                                            },
+                                            "privateIPAddressVersion": "IPv4",
+                                            "loadBalancerBackendAddressPools": [
+                                                {
+                                                    "id": "[concat(parameters('loadBalancers_website4qwnxlb_externalid'), '/backendAddressPools/bepool')]"
+                                                }
+                                            ],
+                                            "loadBalancerInboundNatPools": [
+                                                {
+                                                    "id": "[concat(parameters('loadBalancers_website4qwnxlb_externalid'), '/inboundNatPools/natpool')]"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "hardwareProfile": {},
+                "storageProfile": {
+                    "imageReference": {
+                        "id": "[parameters('images_vm_gnix_image_20190828190253_externalid')]"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "name": "website4qwnx_website4qwnx_1_disk1_36e89439513a4f7d8b43739db94c76a3",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS",
+                            "id": "[parameters('disks_website4qwnx_website4qwnx_1_disk1_36e89439513a4f7d8b43739db94c76a3_externalid')]"
+                        },
+                        "diskSizeGB": 30
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "website4q000001",
+                    "adminUsername": "azureuser",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false,
+                        "provisionVMAgent": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[concat(resourceId('Microsoft.Compute/virtualMachineScaleSets/virtualMachines', parameters('virtualMachineScaleSets_website4qwnx_name'), '1'), '/networkInterfaces/website4qwnxNic')]"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

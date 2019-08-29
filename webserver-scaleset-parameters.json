@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachineScaleSets_website4qwnx_name": {
+            "value": null
+        },
+        "images_vm_gnix_image_20190828190253_externalid": {
+            "value": null
+        },
+        "virtualNetworks_vnet_qwinix_externalid": {
+            "value": null
+        },
+        "loadBalancers_website4qwnxlb_externalid": {
+            "value": null
+        },
+        "disks_website4qwnx_website4qwnx_0_disk1_89cf44d26c3e4a6d83156c779a4e2303_externalid": {
+            "value": null
+        },
+        "disks_website4qwnx_website4qwnx_1_disk1_36e89439513a4f7d8b43739db94c76a3_externalid": {
+            "value": null
+        }
+    }
+}
